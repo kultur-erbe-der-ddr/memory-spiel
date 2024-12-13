@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Memory Matching Game</title>
+  <title>DAS INOFIZIELLE DDR ZAUN MEMORY</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -47,22 +47,32 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
-      cursor: pointer;
       position: relative;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    /* Ensures logo is visible only when the card is not flipped */
+    .card .logo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block; /* Logo is shown when the card is face-down */
     }
 
     .card img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      display: none;
+      display: none; /* Hide the card image initially */
     }
 
+    /* When the card is flipped, show the image */
     .card.flipped img {
       display: block;
     }
 
+    /* Card matched style */
     .card.matched {
       cursor: default;
       background-color: #28a745; /* Green background for matched cards */
@@ -71,8 +81,8 @@
 </head>
 <body>
   <header>
-    <h1>Memory Matching Game</h1>
-    <button onclick="restartGame()">Restart Game</button>
+    <h1>Das Inoffizielle DDR Zaun Memory</h1>
+    <button onclick="restartGame()">Neue Runde</button>
   </header>
   <main>
     <div class="game-container" id="gameContainer">
@@ -80,13 +90,12 @@
     </div>
   </main>
   <footer>
-    <p>Moves: <span id="moves">0</span></p>
-    <p>Time: <span id="time">0:00</span></p>
+    <p>Score: <span id="score">0</span></p>
   </footer>
 
   <script>
     const gameContainer = document.getElementById('gameContainer');
-    const movesElement = document.getElementById('moves');
+    const scoreElement = document.getElementById('score');
     const imageSources = [
       'images/picture1.jpg', 'images/picture2.jpg',
       'images/picture3.jpg', 'images/picture4.jpg',
@@ -97,12 +106,18 @@
     let firstCard = null;
     let secondCard = null;
     let lockBoard = false;
-    let moves = 0;
+    let score = 0; // Make sure score is initialized as a number
 
     function createCard(imageSrc) {
       const card = document.createElement('div');
       card.classList.add('card');
-      card.innerHTML = `<img src="${imageSrc}" alt="Memory Card">`;
+      
+      // Adding both the memory card image and the logo image
+      card.innerHTML = `
+        <img src="${imageSrc}" alt="Memory Card" class="card-img">
+        <img src="images/logo.png" alt="Card Logo" class="logo"> <!-- Added logo image -->
+      `;
+      
       card.addEventListener('click', () => handleCardClick(card));
       return card;
     }
@@ -121,6 +136,13 @@
 
       card.classList.add('flipped');
 
+      // Hide the logo and show the real image on flip
+      const logo = card.querySelector('.logo');
+      const img = card.querySelector('.card-img');
+      
+      logo.style.display = 'none';  // Hide the logo
+      img.style.display = 'block';  // Show the real image
+
       if (!firstCard) {
         firstCard = card;
       } else {
@@ -131,20 +153,32 @@
 
     function checkForMatch() {
       lockBoard = true;
-      moves++;
-      movesElement.textContent = moves;
 
       const isMatch =
-        firstCard.querySelector('img').src === secondCard.querySelector('img').src;
+        firstCard.querySelector('.card-img').src === secondCard.querySelector('.card-img').src;
 
       if (isMatch) {
         firstCard.classList.add('matched');
         secondCard.classList.add('matched');
+        score++;  // Increment score here
+        scoreElement.textContent = score;  // Update the score display after increment
         resetBoard();
       } else {
         setTimeout(() => {
           firstCard.classList.remove('flipped');
           secondCard.classList.remove('flipped');
+          
+          // Show the logo again on both cards
+          const firstCardLogo = firstCard.querySelector('.logo');
+          const secondCardLogo = secondCard.querySelector('.logo');
+          const firstCardImg = firstCard.querySelector('.card-img');
+          const secondCardImg = secondCard.querySelector('.card-img');
+
+          firstCardLogo.style.display = 'block';
+          secondCardLogo.style.display = 'block';
+          firstCardImg.style.display = 'none';
+          secondCardImg.style.display = 'none';
+
           resetBoard();
         }, 1000);
       }
@@ -156,8 +190,8 @@
 
     function restartGame() {
       gameContainer.innerHTML = '';
-      moves = 0;
-      movesElement.textContent = moves;
+      score = 0;  // Reset score to 0 when restarting the game
+      scoreElement.textContent = score;  // Display score as 0 when restarting
       firstCard = null;
       secondCard = null;
       lockBoard = false;
@@ -168,3 +202,4 @@
   </script>
 </body>
 </html>
+
